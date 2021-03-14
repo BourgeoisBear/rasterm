@@ -8,17 +8,8 @@ import (
 )
 
 /*
-	Forked from https://github.com/mattn/go-sixel/
-
-	altered for own purposes:
-		- dropped decoder
-		- dropped caching (only using a cached writer anyway)
-		- dropped dithering (only using palleted images)
-		- updated Encode() to return writer errors
-*/
-
-/*
 	Encodes a paletted image into SIXEL format.
+	Forked & heavily modified from https://github.com/mattn/go-sixel/
 */
 type Encoder struct {
 	w io.Writer
@@ -35,10 +26,10 @@ const (
 
 /*
 	TODO:
-		- refactor into separate library
+		- documentation
+		- better terminal detection
 		- write output-mode selection multiplexer
 		- unit tests for larger photos
-		- user command to specify sixel, kitty, or wez
 */
 
 /*
