@@ -19,29 +19,21 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
+// NOTE: valid sixel encodeds are in range 0x3F (?) TO 0x7E (~)
 const (
 	SIXEL_MIN byte = 0x3f
 	SIXEL_MAX byte = 0x7e
 )
 
 /*
-	TODO:
-		- documentation
-		- better terminal detection
-		- write output-mode selection multiplexer
-		- unit tests for larger photos
-*/
-
-/*
-	NOTE:
-		this does not support transparency.
-		alpha values in the palette will be ignored.
+	this does not support transparency.
+	alpha values in the palette will be ignored.
 
 	encodes paletted image into DECSIXEL format,
 	outputs to underlying io.Writer
 
 	For more information on DECSIXEL format:
-		https://www.vt100.net/docs/vt3xx-gp/chapter14.html
+	https://www.vt100.net/docs/vt3xx-gp/chapter14.html
 */
 func (e *Encoder) Encode(pI *image.Paletted) (E error) {
 
@@ -116,7 +108,7 @@ func (e *Encoder) Encode(pI *image.Paletted) (E error) {
 			}
 		}
 
-		// RESET COLOR USAGE FLAGS
+		// RESET COLOR USAGE FLAGS & SIXEL LINE BUFFER
 		copy(color_used, color_used_blank)
 		copy(buf, buf_blank)
 
@@ -189,10 +181,6 @@ func (e *Encoder) Encode(pI *image.Paletted) (E error) {
 	return
 }
 
-/*
-	NOTE: valid sixel encodeds are in range
-		0x3F (?) TO 0x7E (~)
-*/
 func encodeGRI(rleCt int, sixl byte) []byte {
 
 	if rleCt <= 0 {
