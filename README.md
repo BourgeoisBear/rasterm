@@ -9,7 +9,6 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 - *Sixel*: https://saitoha.github.io/libsixel/
 
 ## TODO
-- godoc link
 - improve terminal identification
 	4:sixel graphics
 	ESC[0c = 63;1;2;4;6;9;15;22c
