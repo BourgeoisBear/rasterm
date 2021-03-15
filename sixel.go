@@ -13,6 +13,24 @@ const (
 	SIXEL_MAX byte = 0x7e
 )
 
+func IsSixelCapable() (bool, error) {
+
+	sATT, E := RequestTermAttributes()
+	if E != nil {
+		return false, E
+	}
+
+	for ix := range sATT {
+
+		// IGNORE `4` @ 1ST INDEX -- THAT IS TERMINAL ID RATHER THAN SIXEL SUPPORT
+		if (ix > 0) && (sATT[ix] == 4) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 /*
 Encodes a paletted image into DECSIXEL format.
 Forked & heavily modified from https://github.com/mattn/go-sixel/
@@ -28,7 +46,7 @@ For more information on DECSIXEL format:
 	https://www.vt100.net/docs/vt3xx-gp/chapter14.html
 	https://saitoha.github.io/libsixel/
 */
-func (S Settings) WriteSixelImage(out io.Writer, pI *image.Paletted) (E error) {
+func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 
 	width, height := pI.Bounds().Dx(), pI.Bounds().Dy()
 	if (width <= 0) || (height <= 0) {

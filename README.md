@@ -9,19 +9,16 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 - *Sixel*: https://saitoha.github.io/libsixel/
 
 ## TODO
+- screenshots
+- check that mintty supports iterm/wezterm format, get mintty identifier
+- perhaps query tmux directly
+	TMUX=/tmp/tmux-1000/default,3218,4
 - improve terminal identification
 	4:sixel graphics
 	ESC[0c = 63;1;2;4;6;9;15;22c
 	19:VT340
 	ESC[>0c = 19;344:0c
 	https://invisible-island.net/xterm/ctlseqs/ctlseqs-contents.html
-
-- check that mintty supports iterm/wezterm format, get mintty identifier
-- unit tests
-- conditionally enable/disable tmux passthrough
-
-perhaps query tmux directly
-TMUX=/tmp/tmux-1000/default,3218,4
 
 ## TESTING
 - test sixel with

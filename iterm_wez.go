@@ -33,12 +33,17 @@ func IsTermItermWez() bool {
 Encode image using the iTerm2/WezTerm terminal image protocol:
 https://iterm2.com/documentation-images.html
 */
-func (S Settings) WriteItermImage(out io.Writer, iImg image.Image) (E error) {
+func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
 
 	pBuf := new(bytes.Buffer)
-	if E = png.Encode(pBuf, iImg); E != nil {
-		return
+	if E := png.Encode(pBuf, iImg); E != nil {
+		return E
 	}
+
+	return S.ItermCopyFileInline(out, pBuf, int64(pBuf.Len()))
+}
+
+func (S Settings) ItermCopyFileInline(out io.Writer, in io.Reader, nLen int64) (E error) {
 
 	OSC_OPEN, OSC_CLOSE := ITERM_IMG_HDR, ITERM_IMG_FTR
 	if S.EscapeTmux && IsTmuxScreen() {
@@ -49,13 +54,13 @@ func (S Settings) WriteItermImage(out io.Writer, iImg image.Image) (E error) {
 		return
 	}
 
-	hdrSize := fmt.Sprintf(";size=%d:", pBuf.Len())
+	hdrSize := fmt.Sprintf(";size=%d:", nLen)
 	if _, E = out.Write([]byte(hdrSize)); E != nil {
 		return
 	}
 
 	enc64 := base64.NewEncoder(base64.StdEncoding, out)
-	if _, E = enc64.Write(pBuf.Bytes()); E != nil {
+	if _, E = io.Copy(enc64, in); E != nil {
 		return
 	}
 

@@ -3,6 +3,7 @@ package rasterm
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"image"
 	"image/png"
 	"io"
@@ -12,7 +13,7 @@ import (
 
 const (
 	KITTY_IMG_HDR = "\x1b_G"
-	KITTY_IMG_FTR = "\x1b\\\n"
+	KITTY_IMG_FTR = "\x1b\\"
 )
 
 // NOTE: uses $TERM, which is overwritten by tmux
@@ -23,10 +24,23 @@ func IsTermKitty() bool {
 }
 
 /*
-Encode image using the Kitty terminal graphics protocol: https://sw.kovidgoyal.net/kitty/graphics-protocol.html
+Encode image using the Kitty terminal graphics protocol:
+https://sw.kovidgoyal.net/kitty/graphics-protocol.html
 */
-func (S Settings) WriteKittyImage(out io.Writer, iImg image.Image) (E error) {
+func (S Settings) KittyWriteImage(out io.Writer, iImg image.Image) error {
 
+	pBuf := new(bytes.Buffer)
+	if E := png.Encode(pBuf, iImg); E != nil {
+		return E
+	}
+
+	return S.KittyCopyPNGInline(out, pBuf, int64(pBuf.Len()))
+}
+
+// Encode raw PNG data into Kitty terminal format
+func (S Settings) KittyCopyPNGInline(out io.Writer, in io.Reader, nLen int64) (E error) {
+
+	// OPTIONALLY TMUX-ESCAPE OPENING & CLOSING OSC CODES
 	OSC_OPEN, OSC_CLOSE := KITTY_IMG_HDR, KITTY_IMG_FTR
 	if S.EscapeTmux && IsTmuxScreen() {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
@@ -51,7 +65,7 @@ func (S Settings) WriteKittyImage(out io.Writer, iImg image.Image) (E error) {
 
 		// os.Stderr.Write([]byte(fmt.Sprintf("%d", len(src))))
 		if b_params == nil {
-			b_params = []byte("a=T,f=100,z=-1,")
+			b_params = []byte(fmt.Sprintf("a=T,f=100,z=-1,S=%d,", nLen))
 		} else {
 			b_params = nil
 		}
@@ -64,6 +78,6 @@ func (S Settings) WriteKittyImage(out io.Writer, iImg image.Image) (E error) {
 	enc64 := base64.NewEncoder(base64.StdEncoding, &oWC)
 	defer enc64.Close()
 
-	E = png.Encode(enc64, iImg)
+	_, E = io.Copy(enc64, in)
 	return
 }
