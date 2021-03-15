@@ -7,18 +7,6 @@ import (
 	"strconv"
 )
 
-/*
-	Encodes a paletted image into SIXEL format.
-	Forked & heavily modified from https://github.com/mattn/go-sixel/
-*/
-type Encoder struct {
-	w io.Writer
-}
-
-func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w: w}
-}
-
 // NOTE: valid sixel encodeds are in range 0x3F (?) TO 0x7E (~)
 const (
 	SIXEL_MIN byte = 0x3f
@@ -26,16 +14,21 @@ const (
 )
 
 /*
-	this does not support transparency.
-	alpha values in the palette will be ignored.
+Encodes a paletted image into DECSIXEL format.
+Forked & heavily modified from https://github.com/mattn/go-sixel/
 
-	encodes paletted image into DECSIXEL format,
-	outputs to underlying io.Writer
+NOTE
 
-	For more information on DECSIXEL format:
+This does not support transparency. Alpha values in the palette will be ignored.
+
+Since SIXEL is a paletted format, this only supports paletted images.
+To handle non-paletted images, you will need to pre-dither from the caller.
+
+For more information on DECSIXEL format:
 	https://www.vt100.net/docs/vt3xx-gp/chapter14.html
+	https://saitoha.github.io/libsixel/
 */
-func (e *Encoder) Encode(pI *image.Paletted) (E error) {
+func (S Settings) WriteSixelImage(out io.Writer, pI *image.Paletted) (E error) {
 
 	width, height := pI.Bounds().Dx(), pI.Bounds().Dy()
 	if (width <= 0) || (height <= 0) {
@@ -46,23 +39,23 @@ func (e *Encoder) Encode(pI *image.Paletted) (E error) {
 		return
 	}
 
-	// CAPTURE WRITE ERROR FOR SIMPLIFIED CHECKING
-	fnWri := func(v []byte) error {
-		_, E = e.w.Write(v)
-		return E
-	}
-
 	// TMUX/SCREEN WORKAROUND
 	OSC_OPEN, OSC_CLOSE := "\x1b", "\x1b\\"
-	if IsTmuxScreen() {
+	if S.EscapeTmux && IsTmuxScreen() {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
+	}
+
+	// CAPTURE WRITE ERROR FOR SIMPLIFIED CHECKING
+	fnWri := func(v []byte) error {
+		_, E = out.Write(v)
+		return E
 	}
 
 	// INTRODUCER = <ESC>P0;1q
 	// 0; rely on RASTER ATTRIBUTES to set aspect ratio
 	// 1; palette[0] as opaque
 	// RASTER ATTRIBUTES (1:1 aspect ratio) = "1;1;width;height
-	_, E = fmt.Fprintf(e.w, "%sP0;1q\"1;1;%d;%d\n", OSC_OPEN, width, height)
+	_, E = fmt.Fprintf(out, "%sP0;1q\"1;1;%d;%d\n", OSC_OPEN, width, height)
 	if E != nil {
 		return
 	}
@@ -85,7 +78,7 @@ func (e *Encoder) Encode(pI *image.Paletted) (E error) {
 
 		// DECGCI (#): Graphics Color Introducer
 		// SEE: https://www.vt100.net/docs/vt3xx-gp/chapter14.html
-		_, E = fmt.Fprintf(e.w, "#%d;2;%d;%d;%d", ix_color, P(r), P(g), P(b))
+		_, E = fmt.Fprintf(out, "#%d;2;%d;%d;%d", ix_color, P(r), P(g), P(b))
 		if E != nil {
 			return
 		}

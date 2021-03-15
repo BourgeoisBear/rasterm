@@ -2,8 +2,19 @@ package rasterm
 
 import "io"
 
+/*
+Used by WriteChunker to optionally transform chunks before
+sending them on to the underlying io.Writer.
+*/
 type XfrmFunc func([]byte) ([]byte, error)
 
+/*
+Wraps an io.Writer interface to buffer/flush in chunks that are
+`chunkSize` bytes long.  Optional `Xfrm` function in struct
+allows for additional []byte processing before sending each
+chunk to the underlying writer. Currently used for encoding to
+Kitty terminal's image format.
+*/
 type WriteChunker struct {
 	chunk  []byte
 	writer io.Writer
@@ -11,12 +22,6 @@ type WriteChunker struct {
 	Xfrm   XfrmFunc
 }
 
-/*
-	Writer interface which buffers/flushes in chunks that are
-	`chunkSize` bytes long.  Optional `Xfrm` function in struct
-	allows for additional []byte processing befor sending to the
-	underlying io.Writer.
-*/
 func NewWriteChunker(iWri io.Writer, chunkSize int) WriteChunker {
 
 	if chunkSize < 1 {

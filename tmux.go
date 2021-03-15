@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// transforms given open/close terminal escapes to pass through tmux to parent terminal
 func TmuxOscOpenClose(opn, cls string) (string, string) {
 
 	opn = "\x1bPtmux;" + strings.ReplaceAll(opn, "\x1b", "\x1b\x1b")

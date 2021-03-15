@@ -11,12 +11,12 @@ import (
 	"strings"
 )
 
-const ITERM_IMG_HDR = "\x1b]1337;File=inline=1"
-const ITERM_IMG_FTR = "\a"
+const (
+	ITERM_IMG_HDR = "\x1b]1337;File=inline=1"
+	ITERM_IMG_FTR = "\a"
+)
 
-/*
-	NOTE: this uses $TERM_PROGRAM, which isn't passed through tmux
-*/
+// NOTE: uses $TERM_PROGRAM, which isn't passed through tmux
 func IsTermItermWez() bool {
 
 	TERM_PROG := strings.ToLower(strings.TrimSpace(os.Getenv("TERM_PROGRAM")))
@@ -29,7 +29,11 @@ func IsTermItermWez() bool {
 	return false
 }
 
-func WriteItermImage(out io.Writer, iImg image.Image) (E error) {
+/*
+Encode image using the iTerm2/WezTerm terminal image protocol:
+https://iterm2.com/documentation-images.html
+*/
+func (S Settings) WriteItermImage(out io.Writer, iImg image.Image) (E error) {
 
 	pBuf := new(bytes.Buffer)
 	if E = png.Encode(pBuf, iImg); E != nil {
@@ -37,7 +41,7 @@ func WriteItermImage(out io.Writer, iImg image.Image) (E error) {
 	}
 
 	OSC_OPEN, OSC_CLOSE := ITERM_IMG_HDR, ITERM_IMG_FTR
-	if IsTmuxScreen() {
+	if S.EscapeTmux && IsTmuxScreen() {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
 	}
 

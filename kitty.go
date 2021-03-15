@@ -10,32 +10,35 @@ import (
 	"strings"
 )
 
-const KITTY_IMG_HDR = "\x1b_G"
-const KITTY_IMG_FTR = "\x1b\\\n"
+const (
+	KITTY_IMG_HDR = "\x1b_G"
+	KITTY_IMG_FTR = "\x1b\\\n"
+)
 
+// NOTE: uses $TERM, which is overwritten by tmux
 func IsTermKitty() bool {
 
 	TERM := strings.ToLower(strings.TrimSpace(os.Getenv("TERM")))
 	return TERM == "xterm-kitty"
 }
 
-func WriteKittyImage(out io.Writer, iImg image.Image) (E error) {
+/*
+Encode image using the Kitty terminal graphics protocol: https://sw.kovidgoyal.net/kitty/graphics-protocol.html
+*/
+func (S Settings) WriteKittyImage(out io.Writer, iImg image.Image) (E error) {
 
 	OSC_OPEN, OSC_CLOSE := KITTY_IMG_HDR, KITTY_IMG_FTR
-	if IsTmuxScreen() {
+	if S.EscapeTmux && IsTmuxScreen() {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
 	}
-
-	B_HDR := []byte(OSC_OPEN)
-	B_FTR := []byte(OSC_CLOSE)
 
 	// LAST CHUNK SIGNAL `m=0` TO KITTY
 	defer func() {
 
 		if E == nil {
-			out.Write(B_HDR)
+			out.Write([]byte(OSC_OPEN))
 			out.Write([]byte("m=0;"))
-			_, E = out.Write(B_FTR)
+			_, E = out.Write([]byte(OSC_CLOSE))
 		}
 	}()
 
@@ -54,7 +57,7 @@ func WriteKittyImage(out io.Writer, iImg image.Image) (E error) {
 		}
 
 		return bytes.Join([][]byte{
-			B_HDR, b_params, []byte("m=1;"), src, B_FTR,
+			[]byte(OSC_OPEN), b_params, []byte("m=1;"), src, []byte(OSC_CLOSE),
 		}, nil), nil
 	}
 
