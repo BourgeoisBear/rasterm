@@ -28,3 +28,9 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 	- https://www.macterm.net/
   - mintty
 
+## Cheat Sheet
+
+- go tool pprof -http=:8080 ./name.prof
+- godoc -http=:8099 -goroot="$HOME/go"
+- go test -v
+- go mod tidy

@@ -11,8 +11,6 @@ import (
 	"testing"
 )
 
-// godoc -http=:8099 -goroot="$HOME/go"
-
 var testFiles []string
 
 func init() {
