@@ -35,12 +35,12 @@ func IsSixelCapable() (bool, error) {
 Encodes a paletted image into DECSIXEL format.
 Forked & heavily modified from https://github.com/mattn/go-sixel/
 
-NOTE
+This does not support transparency.
+Alpha values in the palette will be ignored.
 
-This does not support transparency. Alpha values in the palette will be ignored.
-
-Since SIXEL is a paletted format, this only supports paletted images.
-To handle non-paletted images, you will need to pre-dither from the caller.
+SIXEL is a paletted format.
+To keep dependencies to a minimum, this only supports paletted images.
+To handle non-paletted images, please pre-dither from the caller.
 
 For more information on DECSIXEL format:
 	https://www.vt100.net/docs/vt3xx-gp/chapter14.html

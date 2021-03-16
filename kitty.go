@@ -60,19 +60,20 @@ func (S Settings) KittyCopyPNGInline(out io.Writer, in io.Reader, nLen int64) (E
 	// SEND IN 4K CHUNKS
 	oWC := NewWriteChunker(out, 4096)
 	defer oWC.Flush()
-	var b_params []byte
-	oWC.Xfrm = func(src []byte) ([]byte, error) {
+	bsHdr := []byte(fmt.Sprintf("a=T,f=100,z=-1,S=%d,", nLen))
+	oWC.CustomWriFunc = func(iWri io.Writer, bsDat []byte) (int, error) {
 
-		// os.Stderr.Write([]byte(fmt.Sprintf("%d", len(src))))
-		if b_params == nil {
-			b_params = []byte(fmt.Sprintf("a=T,f=100,z=-1,S=%d,", nLen))
-		} else {
-			b_params = nil
+		parts := [][]byte{
+			[]byte(OSC_OPEN),
+			bsHdr,
+			[]byte("m=1;"),
+			bsDat,
+			[]byte(OSC_CLOSE),
 		}
 
-		return bytes.Join([][]byte{
-			[]byte(OSC_OPEN), b_params, []byte("m=1;"), src, []byte(OSC_CLOSE),
-		}, nil), nil
+		bsHdr = nil
+
+		return iWri.Write(bytes.Join(parts, nil))
 	}
 
 	enc64 := base64.NewEncoder(base64.StdEncoding, &oWC)

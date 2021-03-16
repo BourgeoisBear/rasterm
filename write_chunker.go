@@ -6,11 +6,11 @@ import "io"
 Used by WriteChunker to optionally transform chunks before
 sending them on to the underlying io.Writer.
 */
-type XfrmFunc func([]byte) ([]byte, error)
+type CustomWriFunc func(io.Writer, []byte) (int, error)
 
 /*
 Wraps an io.Writer interface to buffer/flush in chunks that are
-`chunkSize` bytes long.  Optional `Xfrm` function in struct
+`chunkSize` bytes long.  Optional `CustomWriFunc` in struct
 allows for additional []byte processing before sending each
 chunk to the underlying writer. Currently used for encoding to
 Kitty terminal's image format.
@@ -19,7 +19,7 @@ type WriteChunker struct {
 	chunk  []byte
 	writer io.Writer
 	ix     int
-	Xfrm   XfrmFunc
+	CustomWriFunc
 }
 
 func NewWriteChunker(iWri io.Writer, chunkSize int) WriteChunker {
@@ -37,13 +37,12 @@ func NewWriteChunker(iWri io.Writer, chunkSize int) WriteChunker {
 func (pC *WriteChunker) Flush() (E error) {
 
 	tmp := pC.chunk[:pC.ix]
-	if pC.Xfrm != nil {
-		if tmp, E = pC.Xfrm(tmp); E != nil {
-			return
-		}
+	if pC.CustomWriFunc != nil {
+		_, E = pC.CustomWriFunc(pC.writer, tmp)
+	} else {
+		_, E = pC.writer.Write(tmp)
 	}
 
-	_, E = pC.writer.Write(tmp)
 	pC.ix = 0
 	return
 }
