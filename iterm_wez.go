@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"os"
@@ -36,7 +37,22 @@ https://iterm2.com/documentation-images.html
 func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
 
 	pBuf := new(bytes.Buffer)
-	if E := png.Encode(pBuf, iImg); E != nil {
+	var E error
+
+	// NOTE: doing this under suspicion that wezterm PNG
+	// handling is slow
+	if _, bOK := iImg.(*image.Paletted); bOK {
+
+		// PNG IF PALETTED
+		E = png.Encode(pBuf, iImg)
+
+	} else {
+
+		// JPG IF NOT
+		E = jpeg.Encode(pBuf, iImg, &jpeg.Options{Quality: 93})
+	}
+
+	if E != nil {
 		return E
 	}
 
@@ -46,7 +62,7 @@ func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
 func (S Settings) ItermCopyFileInline(out io.Writer, in io.Reader, nLen int64) (E error) {
 
 	OSC_OPEN, OSC_CLOSE := ITERM_IMG_HDR, ITERM_IMG_FTR
-	if S.EscapeTmux && IsTmuxScreen() {
+	if S.EscapeTmux {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
 	}
 
@@ -54,8 +70,7 @@ func (S Settings) ItermCopyFileInline(out io.Writer, in io.Reader, nLen int64) (
 		return
 	}
 
-	hdrSize := fmt.Sprintf(";size=%d:", nLen)
-	if _, E = out.Write([]byte(hdrSize)); E != nil {
+	if _, E = fmt.Fprintf(out, ";size=%d:", nLen); E != nil {
 		return
 	}
 

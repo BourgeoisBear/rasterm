@@ -67,7 +67,22 @@ func getImgInfo(pF *os.File) (imgCfg image.Config, fmtName string, E error) {
 	return
 }
 
-func testEx(pT *testing.T, out io.Writer, mode string, testFiles []string) error {
+type TestLogger interface {
+	Log(...interface{})
+	Logf(string, ...interface{})
+}
+
+func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) error {
+
+	/*
+		fProf, E := os.Create("./kitty.prof")
+		if E != nil {
+			return E
+		}
+		defer fProf.Close()
+		pprof.StartCPUProfile(fProf)
+		defer pprof.StopCPUProfile()
+	*/
 
 	S := Settings{
 		EscapeTmux: false,
@@ -76,34 +91,36 @@ func testEx(pT *testing.T, out io.Writer, mode string, testFiles []string) error
 	for _, file := range testFiles {
 
 		fpath := "./test_images/" + file
-		pT.Log(fpath)
+		iLog.Log(fpath)
 
 		fIn, nImgLen, e2 := getFile(fpath)
 		if e2 != nil {
-			pT.Log(e2)
+			iLog.Log(e2)
 			continue
 		}
 		defer fIn.Close()
 
-		pT.Logf("IMAGE SIZE %d", nImgLen)
+		iLog.Logf("IMAGE SIZE %d", nImgLen)
 
 		imgCfg, fmtName, e2 := getImgInfo(fIn)
 		if e2 != nil {
-			pT.Log(e2)
+			iLog.Log(e2)
 			continue
 		}
 
-		pT.Logf("FMT: %s, W: %d, H: %d", fmtName, imgCfg.Width, imgCfg.Height)
+		iLog.Logf("FMT: %s, W: %d, H: %d", fmtName, imgCfg.Width, imgCfg.Height)
 
 		iImg, _, e2 := loadImage(fpath)
 		if e2 != nil {
-			pT.Log(e2)
+			iLog.Log(e2)
 			continue
 		}
 
 		var e3 error = nil
 		switch mode {
 		case "iterm":
+
+			// e3 = S.ItermWriteImage(out, iImg)
 
 			// WEZ/ITERM SUPPORT ALL FORMATS, SO NO NEED TO RE-ENCODE TO PNG
 			e3 = S.ItermCopyFileInline(out, fIn, nImgLen)
@@ -116,7 +133,7 @@ func testEx(pT *testing.T, out io.Writer, mode string, testFiles []string) error
 
 			} else {
 
-				pT.Logf("%s is type [%T], not *image.Paletted\n", file, iImg)
+				iLog.Logf("%s is type [%T], not *image.Paletted\n", file, iImg)
 				continue
 			}
 
@@ -133,7 +150,7 @@ func testEx(pT *testing.T, out io.Writer, mode string, testFiles []string) error
 		}
 
 		if e3 != nil {
-			pT.Log(e3)
+			iLog.Log(e3)
 		}
 		fmt.Println("")
 	}
@@ -148,7 +165,7 @@ func testEx(pT *testing.T, out io.Writer, mode string, testFiles []string) error
 func TestSixel(pT *testing.T) {
 
 	if IsTermItermWez() || IsTermKitty() {
-		return
+		pT.SkipNow()
 	}
 
 	if E := testEx(pT, os.Stdout, "sixel", testFiles); E != nil {
@@ -158,20 +175,22 @@ func TestSixel(pT *testing.T) {
 
 func TestItermWez(pT *testing.T) {
 
-	if IsTermItermWez() {
-		pT.Log("TESTING ITERM2/WEZ:")
-		if E := testEx(pT, os.Stdout, "iterm", testFiles); E != nil {
-			pT.Fatal(E)
-		}
+	if !IsTermItermWez() {
+		pT.SkipNow()
+	}
+
+	if E := testEx(pT, os.Stdout, "iterm", testFiles); E != nil {
+		pT.Fatal(E)
 	}
 }
 
 func TestKitty(pT *testing.T) {
 
-	if IsTermKitty() {
-		pT.Log("TESTING KITTY TERM")
-		if E := testEx(pT, os.Stdout, "kitty", testFiles); E != nil {
-			pT.Fatal(E)
-		}
+	if !IsTermKitty() {
+		pT.SkipNow()
+	}
+
+	if E := testEx(pT, os.Stdout, "kitty", testFiles); E != nil {
+		pT.Fatal(E)
 	}
 }

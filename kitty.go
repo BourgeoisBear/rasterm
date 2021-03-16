@@ -42,7 +42,7 @@ func (S Settings) KittyCopyPNGInline(out io.Writer, in io.Reader, nLen int64) (E
 
 	// OPTIONALLY TMUX-ESCAPE OPENING & CLOSING OSC CODES
 	OSC_OPEN, OSC_CLOSE := KITTY_IMG_HDR, KITTY_IMG_FTR
-	if S.EscapeTmux && IsTmuxScreen() {
+	if S.EscapeTmux {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
 	}
 

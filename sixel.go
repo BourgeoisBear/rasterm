@@ -59,7 +59,7 @@ func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 
 	// TMUX/SCREEN WORKAROUND
 	OSC_OPEN, OSC_CLOSE := "\x1b", "\x1b\\"
-	if S.EscapeTmux && IsTmuxScreen() {
+	if S.EscapeTmux {
 		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
 	}
 
