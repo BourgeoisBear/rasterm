@@ -41,6 +41,19 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 
 ## Notes
 
+### terminal features matrix
+
+| terminal | sixel | iTerm2 format | kitty format |
+| :---     | :--:  | :--:          | :--:         |
+| aminal   | Y     |               |              |
+| iterm2   | Y     | Y             |              |
+| kitty    |       |               | Y            |
+| mintty   | Y     | Y             |              |
+| putty    |       |               |              |
+| rlogin   | Y     | Y             |              |
+| wezterm  | Y     | Y             |              |
+| xterm    | Y     |               |              |
+
 ### go stuff
 
 ```sh
