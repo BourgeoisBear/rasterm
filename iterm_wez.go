@@ -21,9 +21,14 @@ const (
 func IsTermItermWez() bool {
 
 	TERM_PROG := strings.ToLower(strings.TrimSpace(os.Getenv("TERM_PROGRAM")))
-
 	switch TERM_PROG {
 	case "iterm.app", "wezterm":
+		return true
+	}
+
+	TERM := strings.ToLower(strings.TrimSpace(os.Getenv("TERM")))
+	switch TERM {
+	case "mintty":
 		return true
 	}
 

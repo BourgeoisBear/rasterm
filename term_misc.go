@@ -3,7 +3,6 @@ package rasterm
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -82,7 +81,6 @@ func RequestTermAttributes() (sAttrs []int, E error) {
 	// STDIN "RAW MODE" TO CAPTURE TERMINAL RESPONSE
 	var oldState *term.State
 	if oldState, E = term.MakeRaw(syscall.Stdin); E != nil {
-		fmt.Println("BOO")
 		return
 	}
 	defer func() {
@@ -176,7 +174,6 @@ func GetTtyPath(pF *os.File) (string, error) {
 
 	if sys, ok := info.Sys().(*syscall.Stat_t); ok {
 
-		fmt.Println("CHECKING: " + pF.Name())
 		if path, e := findPtyDevByStat(sys); e == nil {
 			return path, nil
 		} else if os.IsNotExist(e) {

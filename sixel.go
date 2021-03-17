@@ -161,7 +161,7 @@ func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 			cPrev := byte(255)
 			for x := 0; x < width; x++ {
 
-				// GET BUFFERED SIXEL, CLEAR BUFFER
+				// GET BUFFERED SIXEL
 				cNext := buf[(n*width)+x]
 
 				// RLE ENCODE, WRITE ON VALUE CHANGE
