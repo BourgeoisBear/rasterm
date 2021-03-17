@@ -8,9 +8,9 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 
 ## Supported Image Encodings
 
-- *Kitty*
-- *iTerm2 / WezTerm*
-- *Sixel*
+- **Kitty**
+- **iTerm2 / WezTerm**
+- **Sixel**
 
 ## TODO
 
@@ -51,8 +51,8 @@ go mod tidy
 
 ### more reading
 
-- *kitty inline images*:  https://sw.kovidgoyal.net/kitty/graphics-protocol.html
-- *iterm2 inline images*: https://iterm2.com/documentation-images.html
-- *xterm ctl seqs*:       https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-- *sixel ctl seqs*:       https://vt100.net/docs/vt3xx-gp/chapter14.html
-- *libsixel*:             https://saitoha.github.io/libsixel/
+- kitty inline images:  https://sw.kovidgoyal.net/kitty/graphics-protocol.html
+- iterm2 inline images: https://iterm2.com/documentation-images.html
+- xterm ctl seqs:       https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+- sixel ctl seqs:       https://vt100.net/docs/vt3xx-gp/chapter14.html
+- libsixel:             https://saitoha.github.io/libsixel/
