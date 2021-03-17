@@ -49,10 +49,15 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | iterm2   | Y     | Y             |              |
 | kitty    |       |               | Y            |
 | mintty   | Y     | Y             |              |
+| mlterm   | Y     | Y             |              |
 | putty    |       |               |              |
 | rlogin   | Y     | Y             |              |
 | wezterm  | Y     | Y             |              |
 | xterm    | Y     |               |              |
+
+### opinions
+
+- Sixel is a primitive and wasteful format.  Most sixel terminals also support the iTerm2 format--fewer bytes, full color instead of paletted, and no pixel re-processing required.  Much better!
 
 ### go stuff
 
