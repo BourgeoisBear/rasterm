@@ -73,7 +73,7 @@ func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 	// 0; rely on RASTER ATTRIBUTES to set aspect ratio
 	// 1; palette[0] as opaque
 	// RASTER ATTRIBUTES (1:1 aspect ratio) = "1;1;width;height
-	_, E = fmt.Fprintf(out, "%sP0;1q\"1;1;%d;%d\n", OSC_OPEN, width, height)
+	_, E = fmt.Fprintf(out, "%sP0;1q\"1;1;%d;%d", OSC_OPEN, width, height)
 	if E != nil {
 		return
 	}

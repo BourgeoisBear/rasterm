@@ -35,6 +35,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 	- https://domterm.org/
 	- https://www.macterm.net/
 - test wez/iterm img with
+	- iterm2
 	- https://www.macterm.net/
   - mintty
 
@@ -47,6 +48,7 @@ go tool pprof -http=:8080 ./name.prof
 godoc -http=:8099 -goroot="$HOME/go"
 go test -v
 go mod tidy
+https://blog.golang.org/pprof
 ```
 
 ### more reading
