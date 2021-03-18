@@ -1,13 +1,13 @@
 package rasterm
 
 import (
-	"bufio"
 	"errors"
 	"io"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -17,6 +17,7 @@ import (
 var (
 	ESC_ERASE_DISPLAY = "\x1b[2J\x1b[0;0H"
 	E_NON_TTY         = errors.New("NON TTY")
+	E_TIMED_OUT       = errors.New("TERM RESPONSE TIMED OUT")
 )
 
 // transforms given open/close terminal escapes to pass through tmux to parent terminal
@@ -30,6 +31,108 @@ func TmuxOscOpenClose(opn, cls string) (string, string) {
 func IsTmuxScreen() bool {
 	TERM := strings.ToLower(strings.TrimSpace(os.Getenv("TERM")))
 	return strings.HasPrefix(TERM, "screen")
+}
+
+/*
+	Handles request/response terminal control sequences like <ESC>[0c
+
+	STDIN & STDOUT are parameterized for special cases.
+	os.Stdin & os.Stdout are usually sufficient.
+
+	`sRq` should be the request control sequence to the terminal.
+
+	NOTE: only captures up to 1KB of response
+
+	NOTE: when println debugging the response, probably want to go-escape
+	it, like:
+		fmt.Printf("%#v\n", sRsp)
+	since most responses begin with <ESC>, which the terminal treats as
+	another control sequence rather than text to output.
+*/
+func TermRequestResponse(
+	fileIN, fileOUT *os.File, sRq string,
+) (sRsp []byte, E error) {
+
+	// if true {
+	// 	defer func() {
+	// 		if E != nil {
+	// 			if _, file, line, ok := runtime.Caller(1); ok {
+	// 				E = fmt.Errorf("%s:%d - %s", file, line, E.Error())
+	// 			}
+	// 		}
+	// 	}()
+	// }
+
+	fdIN := int(fileIN.Fd())
+
+	// NOTE: raw mode tip came from https://play.golang.org/p/kcMLTiDRZY
+	if !term.IsTerminal(fdIN) {
+		return nil, E_NON_TTY
+	}
+
+	// STDIN "RAW MODE" TO CAPTURE TERMINAL RESPONSE
+	// NOTE: without this, response bypasses stdin,
+	//       and is written directly to the console
+	var oldState *term.State
+	if oldState, E = term.MakeRaw(fdIN); E != nil {
+		return
+	}
+	defer func() {
+		// CAPTURE RESTORE ERROR (IF ANY) IF THERE HASN'T ALREADY BEEN AN ERROR
+		if e2 := term.Restore(fdIN, oldState); E == nil {
+			E = e2
+		}
+	}()
+
+	// SEND REQUEST
+	if _, E = fileOUT.Write([]byte(sRq)); E != nil {
+		return
+	}
+
+	TMP := make([]byte, 1024)
+
+	// WAIT 1/16 SECOND FOR TERM RESPONSE.  IF TIMER EXPIRES,
+	// TRIGGER BYTES TO STDIN ON TIMEOUT SO .Read() CAN FINISH
+	tmr := time.NewTimer(time.Second >> 4)
+	cDone := make(chan bool)
+	WG := sync.WaitGroup{}
+	WG.Add(1)
+	go func() {
+		select {
+		case <-tmr.C:
+			// "Report Cursor Position (CPR) [row; column]
+			// JUST TO GET SOME BYTES TO STDIN
+			// NOTE: seems to work for everything except mlterm
+			fileOUT.Write([]byte("\x1b\x1b[" + "6n"))
+			break
+		case <-cDone:
+			break
+		}
+		WG.Done()
+	}()
+
+	// CAPTURE RESPONSE
+	nBytes, E := fileIN.Read(TMP)
+
+	// ENSURE GOROUTINE TERMINATION
+	bTimedOut := false
+	if tmr.Stop() {
+		cDone <- true
+	} else {
+		bTimedOut = true
+	}
+	WG.Wait()
+
+	if bTimedOut {
+		// fmt.Fprintf(os.Stderr, "%#v\n", string(TMP[1:nBytes]))
+		return nil, E_TIMED_OUT
+	}
+
+	if nBytes > 0 {
+		return TMP[:nBytes], nil
+	}
+
+	return nil, E
 }
 
 /*
@@ -70,61 +173,26 @@ https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h4-Functions-using-CSI-_
 		Ps = 2 8  ⇒  Rectangular editing.
 		Ps = 2 9  ⇒  ANSI text locator (i.e., DEC Locator mode).
 */
+
 func RequestTermAttributes() (sAttrs []int, E error) {
 
-	// NOTE: raw mode tip came from https://play.golang.org/p/kcMLTiDRZY
-
-	if !term.IsTerminal(syscall.Stdin) {
-		return nil, E_NON_TTY
-	}
-
-	// STDIN "RAW MODE" TO CAPTURE TERMINAL RESPONSE
-	var oldState *term.State
-	if oldState, E = term.MakeRaw(syscall.Stdin); E != nil {
-		return
-	}
-	defer func() {
-		// CAPTURE RESTORE ERROR (IF ANY) IF THERE HASN'T ALREADY BEEN AN ERROR
-		if e2 := term.Restore(syscall.Stdin, oldState); E != nil {
-			E = e2
-		}
-	}()
-
-	// STDIN NON-BLOCKING MODE IN CASE TERMINAL RESPONSE IS BOGUS
-	if E = syscall.SetNonblock(syscall.Stdin, true); E != nil {
-		return
-	}
-	defer syscall.SetNonblock(syscall.Stdin, false)
-
-	// 1/8 SECOND READ DEADLINE TO PREVENT LOCK-UP ON INVALID RESPONSE
-	fIN := os.NewFile(uintptr(syscall.Stdin), "stdin")
-	if E = fIN.SetReadDeadline(time.Now().Add(time.Second >> 3)); E != nil {
-		return
-	}
-
-	// SEND REQUEST
-	if _, E = os.Stdout.Write([]byte("\x1b[0c")); E != nil {
-		return
-	}
-
-	// CAPTURE RESPONSE
-	reader := bufio.NewReader(fIN)
-	text, E := reader.ReadString('c')
+	text, E := TermRequestResponse(os.Stdin, os.Stdout, "\x1b[0c")
 	if E != nil {
 		return
 	}
 
 	// EXTRACT CODES
-	pR := regexp.MustCompile(`\d+`)
-	t2 := pR.FindAllString(text, -1)
+	t2 := rxNumber.FindAll(text, -1)
 	sAttrs = make([]int, len(t2))
 	for ix, sN := range t2 {
-		iN, _ := strconv.Atoi(sN)
+		iN, _ := strconv.Atoi(string(sN))
 		sAttrs[ix] = iN
 	}
 
 	return
 }
+
+var rxNumber = regexp.MustCompile(`\d+`)
 
 func findPtyDevByStat(pStat *syscall.Stat_t) (string, error) {
 
