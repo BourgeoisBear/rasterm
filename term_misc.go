@@ -49,9 +49,7 @@ func IsTmuxScreen() bool {
 	since most responses begin with <ESC>, which the terminal treats as
 	another control sequence rather than text to output.
 */
-func TermRequestResponse(
-	fileIN, fileOUT *os.File, sRq string,
-) (sRsp []byte, E error) {
+func TermRequestResponse(fileIN, fileOUT *os.File, sRq string) (sRsp []byte, E error) {
 
 	// if true {
 	// 	defer func() {
@@ -92,7 +90,7 @@ func TermRequestResponse(
 	TMP := make([]byte, 1024)
 
 	// WAIT 1/16 SECOND FOR TERM RESPONSE.  IF TIMER EXPIRES,
-	// TRIGGER BYTES TO STDIN ON TIMEOUT SO .Read() CAN FINISH
+	// TRIGGER BYTES TO STDIN SO .Read() CAN FINISH
 	tmr := time.NewTimer(time.Second >> 4)
 	cDone := make(chan bool)
 	WG := sync.WaitGroup{}
@@ -115,20 +113,15 @@ func TermRequestResponse(
 	nBytes, E := fileIN.Read(TMP)
 
 	// ENSURE GOROUTINE TERMINATION
-	bTimedOut := false
 	if tmr.Stop() {
 		cDone <- true
 	} else {
-		bTimedOut = true
+		// fmt.Fprintf(os.Stderr, "%#v\n", string(TMP[1:nBytes]))
+		E = E_TIMED_OUT
 	}
 	WG.Wait()
 
-	if bTimedOut {
-		// fmt.Fprintf(os.Stderr, "%#v\n", string(TMP[1:nBytes]))
-		return nil, E_TIMED_OUT
-	}
-
-	if nBytes > 0 {
+	if (nBytes > 0) && (E != E_TIMED_OUT) {
 		return TMP[:nBytes], nil
 	}
 
