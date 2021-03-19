@@ -8,8 +8,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"os"
-	"strings"
 )
 
 const (
@@ -17,18 +15,21 @@ const (
 	ITERM_IMG_FTR = "\a"
 )
 
-// NOTE: uses $TERM_PROGRAM, which isn't passed through tmux
+// NOTE: uses $TERM_PROGRAM, which isn't passed through
+//       tmux or ssh
 func IsTermItermWez() bool {
 
-	TERM_PROG := strings.ToLower(strings.TrimSpace(os.Getenv("TERM_PROGRAM")))
-	switch TERM_PROG {
-	case "iterm.app", "wezterm":
+	V := GetEnvIdentifiers()
+
+	if V["TERM"] == "mintty" {
 		return true
 	}
 
-	TERM := strings.ToLower(strings.TrimSpace(os.Getenv("TERM")))
-	switch TERM {
-	case "mintty":
+	if V["LC_TERMINAL"] == "iterm2" {
+		return true
+	}
+
+	if V["TERM_PROGRAM"] == "wezterm" {
 		return true
 	}
 

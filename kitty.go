@@ -7,8 +7,6 @@ import (
 	"image"
 	"image/png"
 	"io"
-	"os"
-	"strings"
 )
 
 const (
@@ -19,8 +17,8 @@ const (
 // NOTE: uses $TERM, which is overwritten by tmux
 func IsTermKitty() bool {
 
-	TERM := strings.ToLower(strings.TrimSpace(os.Getenv("TERM")))
-	return TERM == "xterm-kitty"
+	V := GetEnvIdentifiers()
+	return V["TERM"] == "xterm-kitty"
 }
 
 /*

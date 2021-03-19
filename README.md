@@ -14,7 +14,6 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 
 ## TODO
 
-- generic version of RequestTermAttributes()
 - mintty:
 	- detection for iTerm format: https://github.com/mintty/mintty/issues/881
 - iTerm2:
@@ -59,33 +58,58 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 
 #### CSI 0 c
 
-| terminal | response                                            |
-| :----    | :----                                               |
-| kitty    | "\x1b[?62;c"                                        |
-| guake    | "\x1b[?65;1;9c"                                     |
-| mintty   | "\x1b[?64;1;2;4;6;9;15;21;22;28;29c"                |
-| mlterm   | "\x1b[?63;1;2;3;4;7;29c"                            |
-| putty    | "\x1b[?6c"                                          |
-| rlogin   | "\x1b[?65;1;2;3;4;6;7;8;9;15;18;21;22;29;39;42;44c" |
-| st       | "\x1b[?6c"                                          |
-| wez      | "\x1b[?65;4;6;18;22c"                               |
-| xfce     | "\x1b[?65;1;9c"                                     |
-| xterm    | "\x1b[?63;1;2;4;6;9;15;22c"                         |
+| terminal       | response                                            |
+| :----          | :----                                               |
+| apple terminal | `\x1b[?1;2c`                                        |
+| guake          | `\x1b[?65;1;9c`                                     |
+| iterm2         | `\x1b[?62;4c`                                       |
+| kitty          | `\x1b[?62;c`                                        |
+| mintty         | `\x1b[?64;1;2;4;6;9;15;21;22;28;29c`                |
+| mlterm         | `\x1b[?63;1;2;3;4;7;29c`                            |
+| putty          | `\x1b[?6c`                                          |
+| rlogin         | `\x1b[?65;1;2;3;4;6;7;8;9;15;18;21;22;29;39;42;44c` |
+| st             | `\x1b[?6c`                                          |
+| vimterm        | `\x1b[?1;2c`                                        |
+| wez            | `\x1b[?65;4;6;18;22c`                               |
+| xfce           | `\x1b[?65;1;9c`                                     |
+| xterm          | `\x1b[?63;1;2;4;6;9;15;22c`                         |
 
 #### CSI > 0 c
 
-| terminal | response            |
-| :----    | :----               |
-| kitty    | "\x1b[>1;4000;19c"  |
-| guake    | "\x1b[>65;5402;1c"  |
-| mintty   | "\x1b[>77;30104;0c" |
-| mlterm   | "\x1b[>24;279;0c"   |
-| putty    | "\x1b[>0;136;0c"    |
-| rlogin   | "\x1b[>65;331;0c"   |
-| st       | NO RESPONSE         |
-| wez      | "\x1b[>0;0;0c"      |
-| xfce     | "\x1b[>65;5402;1c"  |
-| xterm    | "\x1b[>19;344;0c    |
+| terminal       | response            |
+| :----          | :----               |
+| apple terminal | `\x1b[>1;95;0c`     |
+| guake          | `\x1b[>65;5402;1c`  |
+| iterm2         | `\x1b[>0;95;0c`     |
+| kitty          | `\x1b[>1;4000;19c`  |
+| mintty         | `\x1b[>77;30104;0c` |
+| mlterm         | `\x1b[>24;279;0c`   |
+| putty          | `\x1b[>0;136;0c`    |
+| rlogin         | `\x1b[>65;331;0c`   |
+| st             | NO RESPONSE         |
+| vimterm        | `\x1b[>0;100;0c`    |
+| wez            | `\x1b[>0;0;0c`      |
+| xfce           | `\x1b[>65;5402;1c`  |
+| xterm          | `\x1b[>19;344;0c`   |
+
+#### identifications
+
+| terminal       | values                                      |
+| :----          | :----                                       |
+| apple terminal | `TERM_PROGRAM="Apple_Terminal"            ` |
+| apple terminal | `__CFBundleIdentifier="com.apple.Terminal"` |
+| guake          | `                                         ` |
+| iterm2         | `LC_TERMINAL="iTerm2"                     ` |
+| kitty          | `TERM="xterm-kitty"                       ` |
+| mintty         | `TERM="mintty"                            ` |
+| mlterm         | `                                         ` |
+| putty          | `                                         ` |
+| rlogin         | `                                         ` |
+| st             | `                                         ` |
+| vimterm        | `VIM_TERMINAL is set                      ` |
+| wez            | `TERM_PROGRAM="wezterm"                   ` |
+| xfce           | `                                         ` |
+| xterm          | `                                         ` |
 
 ### opinions
 

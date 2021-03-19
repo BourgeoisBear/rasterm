@@ -51,7 +51,6 @@ func IsTmuxScreen() bool {
 */
 func TermRequestResponse(fileIN, fileOUT *os.File, sRq string) (sRsp []byte, E error) {
 
-	// if true {
 	// 	defer func() {
 	// 		if E != nil {
 	// 			if _, file, line, ok := runtime.Caller(1); ok {
@@ -59,7 +58,6 @@ func TermRequestResponse(fileIN, fileOUT *os.File, sRq string) (sRsp []byte, E e
 	// 			}
 	// 		}
 	// 	}()
-	// }
 
 	fdIN := int(fileIN.Fd())
 
@@ -245,4 +243,19 @@ func GetTtyPath(pF *os.File) (string, error) {
 	}
 
 	return "", nil
+}
+
+func lcaseEnv(k string) string {
+	return strings.ToLower(strings.TrimSpace(os.Getenv(k)))
+}
+
+func GetEnvIdentifiers() map[string]string {
+
+	KEYS := []string{"TERM", "TERM_PROGRAM", "LC_TERMINAL"}
+	V := make(map[string]string)
+	for _, K := range KEYS {
+		V[K] = lcaseEnv(K)
+	}
+
+	return V
 }
