@@ -69,6 +69,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | putty          | `\x1b[?6c`                                          |
 | rlogin         | `\x1b[?65;1;2;3;4;6;7;8;9;15;18;21;22;29;39;42;44c` |
 | st             | `\x1b[?6c`                                          |
+| terminology    | `\x1b[?64;1;9;15;18;21;22c`                         |
 | vimterm        | `\x1b[?1;2c`                                        |
 | wez            | `\x1b[?65;4;6;18;22c`                               |
 | xfce           | `\x1b[?65;1;9c`                                     |
@@ -106,6 +107,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | putty          | `                                         ` |
 | rlogin         | `                                         ` |
 | st             | `                                         ` |
+| terminology    | `TERM_PROGRAM=terminology`                  |
 | vimterm        | `VIM_TERMINAL is set                      ` |
 | wez            | `TERM_PROGRAM="wezterm"                   ` |
 | xfce           | `                                         ` |
