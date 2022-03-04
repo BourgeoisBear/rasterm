@@ -251,7 +251,7 @@ func lcaseEnv(k string) string {
 
 func GetEnvIdentifiers() map[string]string {
 
-	KEYS := []string{"TERM", "TERM_PROGRAM", "LC_TERMINAL"}
+	KEYS := []string{"TERM", "TERM_PROGRAM", "LC_TERMINAL", "VIM_TERMINAL"}
 	V := make(map[string]string)
 	for _, K := range KEYS {
 		V[K] = lcaseEnv(K)
