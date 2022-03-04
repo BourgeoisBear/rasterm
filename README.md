@@ -30,13 +30,11 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 ## TESTING
 
 - test sixel with
-	- https://github.com/liamg/aminal
 	- https://domterm.org/
 	- https://www.macterm.net/
 - test wez/iterm img with
 	- iterm2
 	- https://www.macterm.net/
-  - mintty
 
 ## Notes
 
@@ -44,7 +42,6 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 
 | terminal | sixel | iTerm2 format | kitty format |
 | :---     | :--:  | :--:          | :--:         |
-| aminal   | Y     |               |              |
 | iterm2   | Y     | Y             |              |
 | kitty    |       |               | Y            |
 | mintty   | Y     | Y             |              |
