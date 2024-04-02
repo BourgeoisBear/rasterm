@@ -37,15 +37,15 @@ func IsTermItermWez() bool {
 
 /*
 Encode image using the iTerm2/WezTerm terminal image protocol:
-https://iterm2.com/documentation-images.html
+
+	https://iterm2.com/documentation-images.html
 */
 func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
 
 	pBuf := new(bytes.Buffer)
 	var E error
 
-	// NOTE: doing this under suspicion that wezterm PNG
-	// handling is slow
+	// NOTE: doing this under suspicion that wezterm PNG handling is slow
 	if _, bOK := iImg.(*image.Paletted); bOK {
 
 		// PNG IF PALETTED
