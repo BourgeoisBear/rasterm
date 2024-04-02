@@ -40,7 +40,7 @@ Encode image using the iTerm2/WezTerm terminal image protocol:
 
 	https://iterm2.com/documentation-images.html
 */
-func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
+func ItermWriteImage(out io.Writer, iImg image.Image) error {
 
 	pBuf := new(bytes.Buffer)
 	var E error
@@ -61,10 +61,10 @@ func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
 		return E
 	}
 
-	return S.ItermCopyFileInline(out, pBuf, int64(pBuf.Len()))
+	return ItermCopyFileInline(out, pBuf, int64(pBuf.Len()))
 }
 
-func (S Settings) ItermCopyFileInline(out io.Writer, in io.Reader, nLen int64) (E error) {
+func ItermCopyFileInline(out io.Writer, in io.Reader, nLen int64) (E error) {
 
 	OSC_OPEN, OSC_CLOSE := ITERM_IMG_HDR, ITERM_IMG_FTR
 

@@ -26,7 +26,7 @@ func IsTermKitty() bool {
 // Display local PNG file
 // - pngFileName must be directly accesssible from Kitty instance
 // - pngFileName must be an absolute path
-func (S Settings) KittyWritePNGLocal(out io.Writer, pngFileName string) error {
+func KittyWritePNGLocal(out io.Writer, pngFileName string) error {
 
 	_, e := fmt.Fprint(out, KITTY_IMG_HDR, "a=T,f=100,t=f;")
 	if e != nil {
@@ -50,18 +50,18 @@ func (S Settings) KittyWritePNGLocal(out io.Writer, pngFileName string) error {
 }
 
 // Serialize image.Image into Kitty terminal in-band format.
-func (S Settings) KittyWriteImage(out io.Writer, iImg image.Image) error {
+func KittyWriteImage(out io.Writer, iImg image.Image) error {
 
 	pBuf := new(bytes.Buffer)
 	if E := png.Encode(pBuf, iImg); E != nil {
 		return E
 	}
 
-	return S.KittyCopyPNGInline(out, pBuf)
+	return KittyCopyPNGInline(out, pBuf)
 }
 
 // Serialize PNG image from io.Reader into Kitty terminal in-band format.
-func (S Settings) KittyCopyPNGInline(out io.Writer, in io.Reader) error {
+func KittyCopyPNGInline(out io.Writer, in io.Reader) error {
 
 	// PIPELINE: PNG (io.Reader) -> B64 -> CHUNKER -> (io.Writer)
 	// SEND IN 4K CHUNKS

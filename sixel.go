@@ -47,7 +47,7 @@ For more information on DECSIXEL format:
 	https://www.vt100.net/docs/vt3xx-gp/chapter14.html
 	https://saitoha.github.io/libsixel/
 */
-func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
+func SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 
 	width, height := pI.Bounds().Dx(), pI.Bounds().Dy()
 	if (width <= 0) || (height <= 0) {

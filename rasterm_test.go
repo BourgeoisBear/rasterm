@@ -87,8 +87,6 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		defer pprof.StopCPUProfile()
 	*/
 
-	S := Settings{}
-
 	baseDir, e2 := filepath.Abs("./test_images")
 	if e2 != nil {
 		return e2
@@ -128,13 +126,13 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		case "iterm":
 
 			// WEZ/ITERM SUPPORT ALL FORMATS, SO NO NEED TO RE-ENCODE TO PNG
-			e3 = S.ItermCopyFileInline(out, fIn, nImgLen)
+			e3 = ItermCopyFileInline(out, fIn, nImgLen)
 
 		case "sixel":
 
 			if iPaletted, bOK := iImg.(*image.Paletted); bOK {
 
-				e3 = S.SixelWriteImage(out, iPaletted)
+				e3 = SixelWriteImage(out, iPaletted)
 
 			} else {
 
@@ -148,14 +146,14 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 			if fmtName == "png" {
 
 				fmt.Println("Kitty PNG Local File")
-				eF := S.KittyWritePNGLocal(out, fpath)
+				eF := KittyWritePNGLocal(out, fpath)
 				fmt.Println("\nKitty PNG Inline")
-				eI := S.KittyCopyPNGInline(out, fIn)
+				eI := KittyCopyPNGInline(out, fIn)
 				e3 = errors.Join(eI, eF)
 
 			} else {
 
-				e3 = S.KittyWriteImage(out, iImg)
+				e3 = KittyWriteImage(out, iImg)
 			}
 		}
 
