@@ -43,6 +43,7 @@ To keep dependencies to a minimum, this only supports paletted images.
 To handle non-paletted images, please pre-dither from the caller.
 
 For more information on DECSIXEL format:
+
 	https://www.vt100.net/docs/vt3xx-gp/chapter14.html
 	https://saitoha.github.io/libsixel/
 */
@@ -57,11 +58,7 @@ func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 		return
 	}
 
-	// TMUX/SCREEN WORKAROUND
 	OSC_OPEN, OSC_CLOSE := "\x1b", "\x1b\\"
-	if S.EscapeTmux {
-		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
-	}
 
 	// CAPTURE WRITE ERROR FOR SIMPLIFIED CHECKING
 	fnWri := func(v []byte) error {
@@ -127,6 +124,11 @@ func (S Settings) SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 		for p := 0; p < 6; p++ {
 
 			y := (ix_srow * 6) + p
+
+			if y >= height {
+				break
+			}
+
 			for x := 0; x < width; x++ {
 				color_ix := pI.ColorIndexAt(x, y)
 				color_used[color_ix] = true

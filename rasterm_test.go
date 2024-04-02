@@ -20,8 +20,11 @@ func init() {
 		panic(e)
 	}
 
-	for ix := range files {
-		testFiles = append(testFiles, files[ix].Name())
+	for _, fi := range files {
+		switch fi.Name() {
+		default:
+			testFiles = append(testFiles, fi.Name())
+		}
 	}
 
 	os.Stdout.Write([]byte(ESC_ERASE_DISPLAY))
@@ -82,9 +85,7 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		defer pprof.StopCPUProfile()
 	*/
 
-	S := Settings{
-		EscapeTmux: false,
-	}
+	S := Settings{}
 
 	for _, file := range testFiles {
 
@@ -118,8 +119,6 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		switch mode {
 		case "iterm":
 
-			// e3 = S.ItermWriteImage(out, iImg)
-
 			// WEZ/ITERM SUPPORT ALL FORMATS, SO NO NEED TO RE-ENCODE TO PNG
 			e3 = S.ItermCopyFileInline(out, fIn, nImgLen)
 
@@ -139,7 +138,7 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 
 			if fmtName == "png" {
 
-				e3 = S.KittyCopyPNGInline(out, fIn, nImgLen)
+				e3 = S.KittyCopyPNGInline(out, fIn)
 
 			} else {
 
@@ -162,10 +161,11 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 // testbed intermediates itself between stdin/stdout with buffers
 func TestSixel(pT *testing.T) {
 
-	if IsTermItermWez() || IsTermKitty() {
+	if IsTermKitty() {
 		pT.SkipNow()
 	}
 
+	fmt.Println("SIXEL")
 	if E := testEx(pT, os.Stdout, "sixel", testFiles); E != nil {
 		pT.Fatal(E)
 	}
@@ -177,6 +177,7 @@ func TestItermWez(pT *testing.T) {
 		pT.SkipNow()
 	}
 
+	fmt.Println("ITERM/WEZ/MINTTY")
 	if E := testEx(pT, os.Stdout, "iterm", testFiles); E != nil {
 		pT.Fatal(E)
 	}
@@ -188,6 +189,7 @@ func TestKitty(pT *testing.T) {
 		pT.SkipNow()
 	}
 
+	fmt.Println("KITTY")
 	if E := testEx(pT, os.Stdout, "kitty", testFiles); E != nil {
 		pT.Fatal(E)
 	}

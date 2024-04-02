@@ -20,34 +20,28 @@ var (
 	E_TIMED_OUT       = errors.New("TERM RESPONSE TIMED OUT")
 )
 
-// transforms given open/close terminal escapes to pass through tmux to parent terminal
-func TmuxOscOpenClose(opn, cls string) (string, string) {
-
-	opn = "\x1bPtmux;" + strings.ReplaceAll(opn, "\x1b", "\x1b\x1b")
-	cls = strings.ReplaceAll(cls, "\x1b", "\x1b\x1b") + "\x1b\\"
-	return opn, cls
-}
-
 func IsTmuxScreen() bool {
 	TERM := strings.ToLower(strings.TrimSpace(os.Getenv("TERM")))
 	return strings.HasPrefix(TERM, "screen")
 }
 
 /*
-	Handles request/response terminal control sequences like <ESC>[0c
+Handles request/response terminal control sequences like <ESC>[0c
 
-	STDIN & STDOUT are parameterized for special cases.
-	os.Stdin & os.Stdout are usually sufficient.
+STDIN & STDOUT are parameterized for special cases.
+os.Stdin & os.Stdout are usually sufficient.
 
-	`sRq` should be the request control sequence to the terminal.
+`sRq` should be the request control sequence to the terminal.
 
-	NOTE: only captures up to 1KB of response
+NOTE: only captures up to 1KB of response
 
-	NOTE: when println debugging the response, probably want to go-escape
-	it, like:
-		fmt.Printf("%#v\n", sRsp)
-	since most responses begin with <ESC>, which the terminal treats as
-	another control sequence rather than text to output.
+NOTE: when println debugging the response, probably want to go-escape
+it, like:
+
+	fmt.Printf("%#v\n", sRsp)
+
+since most responses begin with <ESC>, which the terminal treats as
+another control sequence rather than text to output.
 */
 func TermRequestResponse(fileIN, fileOUT *os.File, sRq string) (sRsp []byte, E error) {
 
@@ -251,7 +245,7 @@ func lcaseEnv(k string) string {
 
 func GetEnvIdentifiers() map[string]string {
 
-	KEYS := []string{"TERM", "TERM_PROGRAM", "LC_TERMINAL", "VIM_TERMINAL"}
+	KEYS := []string{"TERM", "TERM_PROGRAM", "LC_TERMINAL", "VIM_TERMINAL", "KITTY_WINDOW_ID"}
 	V := make(map[string]string)
 	for _, K := range KEYS {
 		V[K] = lcaseEnv(K)

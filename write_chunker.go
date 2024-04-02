@@ -34,21 +34,19 @@ func NewWriteChunker(iWri io.Writer, chunkSize int) WriteChunker {
 	}
 }
 
-func (pC *WriteChunker) Flush() (E error) {
+func (pC *WriteChunker) Flush() (int, error) {
 
 	tmp := pC.chunk[:pC.ix]
-	if pC.CustomWriFunc != nil {
-		_, E = pC.CustomWriFunc(pC.writer, tmp)
-	} else {
-		_, E = pC.writer.Write(tmp)
-	}
-
 	pC.ix = 0
-	return
+	if pC.CustomWriFunc != nil {
+		return pC.CustomWriFunc(pC.writer, tmp)
+	}
+	return pC.writer.Write(tmp)
 }
 
 func (pC *WriteChunker) Write(src []byte) (int, error) {
 
+	var nTot int
 	chunkSize := len(pC.chunk)
 
 	for _, bt := range src {
@@ -57,8 +55,10 @@ func (pC *WriteChunker) Write(src []byte) (int, error) {
 		pC.ix++
 
 		if pC.ix >= chunkSize {
-			if e := pC.Flush(); e != nil {
-				return 0, e
+			n, e := pC.Flush()
+			nTot += n
+			if e != nil {
+				return nTot, e
 			}
 		}
 	}

@@ -15,8 +15,7 @@ const (
 	ITERM_IMG_FTR = "\a"
 )
 
-// NOTE: uses $TERM_PROGRAM, which isn't passed through
-//       tmux or ssh
+// NOTE: uses $TERM_PROGRAM, which isn't passed through tmux or ssh
 func IsTermItermWez() bool {
 
 	V := GetEnvIdentifiers()
@@ -68,9 +67,6 @@ func (S Settings) ItermWriteImage(out io.Writer, iImg image.Image) error {
 func (S Settings) ItermCopyFileInline(out io.Writer, in io.Reader, nLen int64) (E error) {
 
 	OSC_OPEN, OSC_CLOSE := ITERM_IMG_HDR, ITERM_IMG_FTR
-	if S.EscapeTmux {
-		OSC_OPEN, OSC_CLOSE = TmuxOscOpenClose(OSC_OPEN, OSC_CLOSE)
-	}
 
 	if _, E = out.Write([]byte(OSC_OPEN)); E != nil {
 		return
