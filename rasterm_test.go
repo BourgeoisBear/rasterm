@@ -1,6 +1,7 @@
 package rasterm
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	_ "image/gif"
@@ -8,6 +9,7 @@ import (
 	_ "image/png"
 	"io"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -87,9 +89,14 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 
 	S := Settings{}
 
+	baseDir, e2 := filepath.Abs("./test_images")
+	if e2 != nil {
+		return e2
+	}
+
 	for _, file := range testFiles {
 
-		fpath := "./test_images/" + file
+		fpath := baseDir + "/" + file
 		iLog.Log(fpath)
 
 		fIn, nImgLen, e2 := getFile(fpath)
@@ -115,6 +122,7 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 			continue
 		}
 
+		fmt.Println(fpath)
 		var e3 error = nil
 		switch mode {
 		case "iterm":
@@ -131,6 +139,7 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 			} else {
 
 				iLog.Logf("%s is type [%T], not *image.Paletted\n", file, iImg)
+				fmt.Println("\tNOT PALETTED")
 				continue
 			}
 
@@ -138,7 +147,11 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 
 			if fmtName == "png" {
 
-				e3 = S.KittyCopyPNGInline(out, fIn)
+				fmt.Println("Kitty PNG Local File")
+				eF := S.KittyWritePNGLocal(out, fpath)
+				fmt.Println("\nKitty PNG Inline")
+				eI := S.KittyCopyPNGInline(out, fIn)
+				e3 = errors.Join(eI, eF)
 
 			} else {
 
