@@ -121,8 +121,8 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 			iLog.Log(e2)
 			continue
 		}
+		fmt.Printf("%s [%T]\n", fpath, iImg)
 
-		fmt.Println(fpath)
 		var e3 error = nil
 		switch mode {
 		case "iterm":
