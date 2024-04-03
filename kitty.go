@@ -23,10 +23,10 @@ type KittyImgOpts struct {
 	SrcY        uint32 // y=
 	SrcWidth    uint32 // w=
 	SrcHeight   uint32 // h=
-	CellOffsetX uint32 // X=
-	CellOffsetY uint32 // Y=
-	DstCols     uint32 // c=
-	DstRows     uint32 // r=
+	CellOffsetX uint32 // X= (pixel x-offset inside terminal cell)
+	CellOffsetY uint32 // Y= (pixel y-offset inside terminal cell)
+	DstCols     uint32 // c= (display width in terminal columns)
+	DstRows     uint32 // r= (display height in terminal rows)
 	ZIndex      int32  // z=
 	ImageId     uint32 // i=
 	ImageNo     uint32 // I=
