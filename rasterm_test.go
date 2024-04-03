@@ -104,7 +104,7 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		}
 		defer fIn.Close()
 
-		iLog.Logf("IMAGE SIZE %d", nImgLen)
+		fmt.Println(fpath)
 
 		imgCfg, fmtName, e2 := getImgInfo(fIn)
 		if e2 != nil {
@@ -112,14 +112,13 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 			continue
 		}
 
-		iLog.Logf("FMT: %s, W: %d, H: %d", fmtName, imgCfg.Width, imgCfg.Height)
-
 		iImg, _, e2 := loadImage(fpath)
 		if e2 != nil {
 			iLog.Log(e2)
 			continue
 		}
-		fmt.Printf("%s [%T]\n", fpath, iImg)
+
+		fmt.Printf("[FMT: %s, W: %d, H: %d, LEN: %d, IMG: %T]\n", fmtName, imgCfg.Width, imgCfg.Height, nImgLen, iImg)
 
 		var e3 error = nil
 		switch mode {
@@ -136,8 +135,7 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 
 			} else {
 
-				iLog.Logf("%s is type [%T], not *image.Paletted\n", file, iImg)
-				fmt.Println("\tNOT PALETTED")
+				fmt.Println("[NOT PALETTED, SKIPPING.]")
 				continue
 			}
 
@@ -146,14 +144,14 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 			if fmtName == "png" {
 
 				fmt.Println("Kitty PNG Local File")
-				eF := KittyWritePNGLocal(out, fpath)
+				eF := KittyWritePNGLocal(out, fpath, KittyImgOpts{})
 				fmt.Println("\nKitty PNG Inline")
-				eI := KittyCopyPNGInline(out, fIn)
+				eI := KittyCopyPNGInline(out, fIn, KittyImgOpts{})
 				e3 = errors.Join(eI, eF)
 
 			} else {
 
-				e3 = KittyWriteImage(out, iImg)
+				e3 = KittyWriteImage(out, iImg, KittyImgOpts{})
 			}
 		}
 
@@ -166,15 +164,17 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 	return nil
 }
 
-// NOTE
-//
-// can't query terminal attributes here (i.e. sixel support) since golang
-// testbed intermediates itself between stdin/stdout with buffers
 func TestSixel(pT *testing.T) {
 
-	if IsTermKitty() {
-		pT.SkipNow()
-	}
+	// NOTE: go test captures stdin/stdout to where they are no longer TTYs.
+	// This prevents IsSixelCapable() from operating, so always attempting
+	// sixels from the test, whether the terminal is capable or not.
+	// https://github.com/golang/go/issues/18153
+
+	// bSix, err := IsSixelCapable()
+	// if err != nil {
+	// 	pT.Fatal(err)
+	// }
 
 	fmt.Println("SIXEL")
 	if E := testEx(pT, os.Stdout, "sixel", testFiles); E != nil {
@@ -184,7 +184,7 @@ func TestSixel(pT *testing.T) {
 
 func TestItermWez(pT *testing.T) {
 
-	if !IsTermItermWez() {
+	if !IsItermCapable() {
 		pT.SkipNow()
 	}
 
@@ -196,7 +196,7 @@ func TestItermWez(pT *testing.T) {
 
 func TestKitty(pT *testing.T) {
 
-	if !IsTermKitty() {
+	if !IsKittyCapable() {
 		pT.SkipNow()
 	}
 

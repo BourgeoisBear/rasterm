@@ -6,10 +6,9 @@ import (
 )
 
 type kittyChunkWri struct {
-	iWri        io.Writer
-	nChunkSize  int
-	nMod        int
-	bHdrWritten bool
+	iWri       io.Writer
+	nChunkSize int
+	nMod       int
 }
 
 // signal last chunk to Kitty on close
@@ -33,14 +32,8 @@ func (c *kittyChunkWri) Write(buf []byte) (int, error) {
 			c.nMod += l
 		}
 
-		var szHdr string
-		if !c.bHdrWritten {
-			szHdr = "a=T,f=100,"
-			c.bHdrWritten = true
-		}
-
 		// prefix
-		_, err := fmt.Fprint(c.iWri, KITTY_IMG_HDR, szHdr, "m=1;")
+		_, err := fmt.Fprint(c.iWri, KITTY_IMG_HDR, "m=1;")
 		if err != nil {
 			return nWritten, err
 		}

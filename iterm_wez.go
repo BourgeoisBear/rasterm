@@ -16,7 +16,8 @@ const (
 )
 
 // NOTE: uses $TERM_PROGRAM, which isn't passed through tmux or ssh
-func IsTermItermWez() bool {
+// checks if iterm inline image protocol is supported
+func IsItermCapable() bool {
 
 	V := GetEnvIdentifiers()
 
