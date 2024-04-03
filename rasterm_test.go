@@ -32,17 +32,6 @@ func init() {
 	os.Stdout.Write([]byte(ESC_ERASE_DISPLAY))
 }
 
-func loadImage(path string) (iImg image.Image, imgFmt string, E error) {
-
-	pF, E := os.Open(path)
-	if E != nil {
-		return
-	}
-	defer pF.Close()
-
-	return image.Decode(pF)
-}
-
 func getFile(fpath string) (*os.File, int64, error) {
 
 	pF, E := os.Open(fpath)
@@ -57,17 +46,6 @@ func getFile(fpath string) (*os.File, int64, error) {
 	}
 
 	return pF, fInf.Size(), nil
-}
-
-func getImgInfo(pF *os.File) (imgCfg image.Config, fmtName string, E error) {
-
-	if imgCfg, fmtName, E = image.DecodeConfig(pF); E != nil {
-		return
-	}
-
-	// REWIND FILE
-	_, E = pF.Seek(0, 0)
-	return
 }
 
 type TestLogger interface {
@@ -106,13 +84,25 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 
 		fmt.Println(fpath)
 
-		imgCfg, fmtName, e2 := getImgInfo(fIn)
+		imgCfg, fmtName, e2 := image.DecodeConfig(fIn)
 		if e2 != nil {
 			iLog.Log(e2)
 			continue
 		}
 
-		iImg, _, e2 := loadImage(fpath)
+		_, e2 = fIn.Seek(0, 0)
+		if e2 != nil {
+			iLog.Log(e2)
+			continue
+		}
+
+		iImg, _, e2 := image.Decode(fIn)
+		if e2 != nil {
+			iLog.Log(e2)
+			continue
+		}
+
+		_, e2 = fIn.Seek(0, 0)
 		if e2 != nil {
 			iLog.Log(e2)
 			continue
