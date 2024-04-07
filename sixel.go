@@ -35,11 +35,11 @@ func IsSixelCapable() (bool, error) {
 Encodes a paletted image into DECSIXEL format.
 Forked & heavily modified from https://github.com/mattn/go-sixel/
 
-This does not support transparency.
-Alpha values in the palette will be ignored.
+Since SIXEL does not support alpha transparency, any alpha > 0
+will be treated as fully opaque.
 
-SIXEL is a paletted format.
-To keep dependencies to a minimum, this only supports paletted images.
+SIXEL is a paletted format.  To keep dependencies to a minimum, this only
+supports paletted images. Palette entries beyond index 255 are ignored.
 To handle non-paletted images, please pre-dither from the caller.
 
 For more information on DECSIXEL format:
@@ -89,7 +89,12 @@ func SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 		}
 
 		// R,G,B AS WHOLE PERCENTAGES
-		r, g, b, _ := v.RGBA()
+		r, g, b, a := v.RGBA()
+
+		// OMIT FULLY-TRANSPARENT COLORS FROM GCI PALETTE
+		if a == 0 {
+			continue
+		}
 
 		// DECGCI (#): Graphics Color Introducer
 		// SEE: https://www.vt100.net/docs/vt3xx-gp/chapter14.html
@@ -130,7 +135,15 @@ func SixelWriteImage(out io.Writer, pI *image.Paletted) (E error) {
 			}
 
 			for x := 0; x < width; x++ {
+
 				color_ix := pI.ColorIndexAt(x, y)
+
+				// SKIP FULLY-TRANSPARENT PIXELS
+				_, _, _, a := pI.Palette[color_ix].RGBA()
+				if a == 0 {
+					continue
+				}
+
 				color_used[color_ix] = true
 				buf[(width*int(color_ix))+x] |= 1 << uint(p)
 			}
