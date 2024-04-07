@@ -53,7 +53,76 @@ type TestLogger interface {
 	Logf(string, ...interface{})
 }
 
-func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) error {
+func testImage(iWri io.Writer, fpath, mode string) error {
+
+	fIn, nImgLen, err := getFile(fpath)
+	if err != nil {
+		return err
+	}
+	defer fIn.Close()
+
+	fmt.Println(fpath)
+
+	imgCfg, fmtName, err := image.DecodeConfig(fIn)
+	if err != nil {
+		return err
+	}
+
+	_, err = fIn.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	iImg, _, err := image.Decode(fIn)
+	if err != nil {
+		return err
+	}
+
+	_, err = fIn.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("[FMT: %s, W: %d, H: %d, LEN: %d, IMG: %T]\n", fmtName, imgCfg.Width, imgCfg.Height, nImgLen, iImg)
+
+	switch mode {
+	case "iterm":
+
+		// WEZ/ITERM SUPPORT ALL FORMATS, SO NO NEED TO RE-ENCODE TO PNG
+		err = ItermCopyFileInline(iWri, fIn, nImgLen)
+
+	case "sixel":
+
+		if iPaletted, bOK := iImg.(*image.Paletted); bOK {
+
+			err = SixelWriteImage(iWri, iPaletted)
+
+		} else {
+
+			fmt.Println("[NOT PALETTED, SKIPPING.]")
+		}
+
+	case "kitty":
+
+		if fmtName == "png" {
+
+			fmt.Println("Kitty PNG Local File")
+			eF := KittyWritePNGLocal(iWri, fpath, KittyImgOpts{})
+			fmt.Println("\nKitty PNG Inline")
+			eI := KittyCopyPNGInline(iWri, fIn, KittyImgOpts{})
+			err = errors.Join(eI, eF)
+
+		} else {
+
+			err = KittyWriteImage(iWri, iImg, KittyImgOpts{})
+		}
+	}
+
+	fmt.Println("")
+	return err
+}
+
+func testEx(iLog TestLogger, iWri io.Writer, mode string, testFiles []string) error {
 
 	/*
 		fProf, E := os.Create("./kitty.prof")
@@ -65,9 +134,9 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		defer pprof.StopCPUProfile()
 	*/
 
-	baseDir, e2 := filepath.Abs("./test_images")
-	if e2 != nil {
-		return e2
+	baseDir, err := filepath.Abs("./test_images")
+	if err != nil {
+		return err
 	}
 
 	for _, file := range testFiles {
@@ -75,80 +144,10 @@ func testEx(iLog TestLogger, out io.Writer, mode string, testFiles []string) err
 		fpath := baseDir + "/" + file
 		iLog.Log(fpath)
 
-		fIn, nImgLen, e2 := getFile(fpath)
-		if e2 != nil {
-			iLog.Log(e2)
-			continue
+		err = testImage(iWri, fpath, mode)
+		if err != nil {
+			iLog.Log(err)
 		}
-		defer fIn.Close()
-
-		fmt.Println(fpath)
-
-		imgCfg, fmtName, e2 := image.DecodeConfig(fIn)
-		if e2 != nil {
-			iLog.Log(e2)
-			continue
-		}
-
-		_, e2 = fIn.Seek(0, 0)
-		if e2 != nil {
-			iLog.Log(e2)
-			continue
-		}
-
-		iImg, _, e2 := image.Decode(fIn)
-		if e2 != nil {
-			iLog.Log(e2)
-			continue
-		}
-
-		_, e2 = fIn.Seek(0, 0)
-		if e2 != nil {
-			iLog.Log(e2)
-			continue
-		}
-
-		fmt.Printf("[FMT: %s, W: %d, H: %d, LEN: %d, IMG: %T]\n", fmtName, imgCfg.Width, imgCfg.Height, nImgLen, iImg)
-
-		var e3 error = nil
-		switch mode {
-		case "iterm":
-
-			// WEZ/ITERM SUPPORT ALL FORMATS, SO NO NEED TO RE-ENCODE TO PNG
-			e3 = ItermCopyFileInline(out, fIn, nImgLen)
-
-		case "sixel":
-
-			if iPaletted, bOK := iImg.(*image.Paletted); bOK {
-
-				e3 = SixelWriteImage(out, iPaletted)
-
-			} else {
-
-				fmt.Println("[NOT PALETTED, SKIPPING.]")
-				continue
-			}
-
-		case "kitty":
-
-			if fmtName == "png" {
-
-				fmt.Println("Kitty PNG Local File")
-				eF := KittyWritePNGLocal(out, fpath, KittyImgOpts{})
-				fmt.Println("\nKitty PNG Inline")
-				eI := KittyCopyPNGInline(out, fIn, KittyImgOpts{})
-				e3 = errors.Join(eI, eF)
-
-			} else {
-
-				e3 = KittyWriteImage(out, iImg, KittyImgOpts{})
-			}
-		}
-
-		if e3 != nil {
-			iLog.Log(e3)
-		}
-		fmt.Println("")
 	}
 
 	return nil
