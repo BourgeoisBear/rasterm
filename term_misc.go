@@ -12,10 +12,13 @@ import (
 	"golang.org/x/term"
 )
 
-var (
+const (
 	ESC_ERASE_DISPLAY = "\x1b[2J\x1b[0;0H"
-	E_NON_TTY         = errors.New("NON TTY")
-	E_TIMED_OUT       = errors.New("TERM RESPONSE TIMED OUT")
+)
+
+var (
+	E_NON_TTY   = errors.New("NON TTY")
+	E_TIMED_OUT = errors.New("TERM RESPONSE TIMED OUT")
 )
 
 func IsTmuxScreen() bool {
