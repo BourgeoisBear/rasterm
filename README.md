@@ -18,9 +18,6 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 	- detection for iTerm format: https://github.com/mintty/mintty/issues/881
 - iTerm2:
 	- support: name, width, height, preserveAspectRatio options
-- Kitty:
-	- support animation
-	- support image placement /dims
 - perhaps query tmux directly: TMUX=/tmp/tmux-1000/default,3218,4
 - improve terminal identification
 	19:VT340
