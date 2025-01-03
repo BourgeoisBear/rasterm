@@ -39,6 +39,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 
 | terminal | sixel | iTerm2 format | kitty format |
 | :---     | :--:  | :--:          | :--:         |
+| ghostty  |       |               | Y            |
 | iterm2   | Y     | Y             |              |
 | kitty    |       |               | Y            |
 | mintty   | Y     | Y             |              |
@@ -55,6 +56,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | terminal       | response                                            |
 | :----          | :----                                               |
 | apple terminal | `\x1b[?1;2c`                                        |
+| ghostty        | `\x1b[?62;22c`                                      |
 | guake          | `\x1b[?65;1;9c`                                     |
 | iterm2         | `\x1b[?62;4c`                                       |
 | kitty          | `\x1b[?62;c`                                        |
@@ -74,6 +76,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | terminal       | response            |
 | :----          | :----               |
 | apple terminal | `\x1b[>1;95;0c`     |
+| ghostty        | `\x1b[>1;10;0c`     |
 | guake          | `\x1b[>65;5402;1c`  |
 | iterm2         | `\x1b[>0;95;0c`     |
 | kitty          | `\x1b[>1;4000;19c`  |
@@ -93,6 +96,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | :----          | :----                                       |
 | apple terminal | `TERM_PROGRAM="Apple_Terminal"            ` |
 | apple terminal | `__CFBundleIdentifier="com.apple.Terminal"` |
+| ghostty        | `TERM="xterm-ghostty"                     ` |
 | guake          | `                                         ` |
 | iterm2         | `LC_TERMINAL="iTerm2"                     ` |
 | kitty          | `TERM="xterm-kitty"                       ` |
