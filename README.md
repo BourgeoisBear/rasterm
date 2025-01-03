@@ -56,6 +56,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | terminal       | response                                            |
 | :----          | :----                                               |
 | apple terminal | `\x1b[?1;2c`                                        |
+| ghostty        | `\x1b[?62;22c`                                      |
 | guake          | `\x1b[?65;1;9c`                                     |
 | iterm2         | `\x1b[?62;4c`                                       |
 | kitty          | `\x1b[?62;c`                                        |
@@ -75,6 +76,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | terminal       | response            |
 | :----          | :----               |
 | apple terminal | `\x1b[>1;95;0c`     |
+| ghostty        | `\x1b[>1;10;0c`     |
 | guake          | `\x1b[>65;5402;1c`  |
 | iterm2         | `\x1b[>0;95;0c`     |
 | kitty          | `\x1b[>1;4000;19c`  |
