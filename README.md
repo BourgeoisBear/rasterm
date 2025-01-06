@@ -42,6 +42,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | ghostty  |       |               | Y            |
 | iterm2   | Y     | Y             |              |
 | kitty    |       |               | Y            |
+| rio      | Y     | Y             |              |
 | mintty   | Y     | Y             |              |
 | mlterm   | Y     | Y             |              |
 | putty    |       |               |              |
@@ -60,6 +61,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | guake          | `\x1b[?65;1;9c`                                     |
 | iterm2         | `\x1b[?62;4c`                                       |
 | kitty          | `\x1b[?62;c`                                        |
+| rio            | `\x1b[?62;4;6;22c`                                  |
 | mintty         | `\x1b[?64;1;2;4;6;9;15;21;22;28;29c`                |
 | mlterm         | `\x1b[?63;1;2;3;4;7;29c`                            |
 | putty          | `\x1b[?6c`                                          |
@@ -79,6 +81,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | ghostty        | `\x1b[>1;10;0c`     |
 | guake          | `\x1b[>65;5402;1c`  |
 | iterm2         | `\x1b[>0;95;0c`     |
+| rio            | `\x1b[>0;95;0c`     |
 | kitty          | `\x1b[>1;4000;19c`  |
 | mintty         | `\x1b[>77;30104;0c` |
 | mlterm         | `\x1b[>24;279;0c`   |
@@ -97,6 +100,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | apple terminal | `TERM_PROGRAM="Apple_Terminal"            ` |
 | apple terminal | `__CFBundleIdentifier="com.apple.Terminal"` |
 | ghostty        | `TERM="xterm-ghostty"                     ` |
+| rio            | `TERM="rio"                               ` |
 | guake          | `                                         ` |
 | iterm2         | `LC_TERMINAL="iTerm2"                     ` |
 | kitty          | `TERM="xterm-kitty"                       ` |

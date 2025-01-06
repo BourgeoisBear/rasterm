@@ -96,6 +96,10 @@ func IsItermCapable() bool {
 		return true
 	}
 
+	if V["TERM_PROGRAM"] == "rio" {
+		return true
+	}
+
 	return false
 }
 
