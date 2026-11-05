@@ -183,6 +183,31 @@ func TestItermWez(pT *testing.T) {
 	}
 }
 
+func TestIsKittyCapable(t *testing.T) {
+	for _, tt := range []struct {
+		name        string
+		termProgram string
+		kittyID     string
+		want        bool
+	}{
+		{"rex", "rex", "", true},
+		{"normalized rex", " Rex ", "", true},
+		{"kitty", "", "1", true},
+		{"wezterm", "wezterm", "", true},
+		{"ghostty", "ghostty", "", true},
+		{"apple terminal", "Apple_Terminal", "", false},
+		{"unknown", "", "", false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("TERM_PROGRAM", tt.termProgram)
+			t.Setenv("KITTY_WINDOW_ID", tt.kittyID)
+			if got := IsKittyCapable(); got != tt.want {
+				t.Fatalf("IsKittyCapable() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestKitty(pT *testing.T) {
 
 	if !IsKittyCapable() {

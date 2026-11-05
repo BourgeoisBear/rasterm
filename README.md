@@ -46,6 +46,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | mintty   | Y     | Y             |              |
 | mlterm   | Y     | Y             |              |
 | putty    |       |               |              |
+| rex      |       |               | Y            |
 | rlogin   | Y     | Y             |              |
 | wezterm  | Y     | Y             |              |
 | xterm    | Y     |               |              |
@@ -65,6 +66,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | mintty         | `\x1b[?64;1;2;4;6;9;15;21;22;28;29c`                |
 | mlterm         | `\x1b[?63;1;2;3;4;7;29c`                            |
 | putty          | `\x1b[?6c`                                          |
+| rex            | `\x1b[?62;22c`                                      |
 | rlogin         | `\x1b[?65;1;2;3;4;6;7;8;9;15;18;21;22;29;39;42;44c` |
 | st             | `\x1b[?6c`                                          |
 | terminology    | `\x1b[?64;1;9;15;18;21;22c`                         |
@@ -107,6 +109,7 @@ Encodes images to iTerm / Kitty / SIXEL (terminal) inline graphics protocols.
 | mintty         | `TERM="mintty"                            ` |
 | mlterm         | `                                         ` |
 | putty          | `                                         ` |
+| rex            | `TERM_PROGRAM="rex"                       ` |
 | rlogin         | `                                         ` |
 | st             | `                                         ` |
 | terminology    | `TERM_PROGRAM=terminology`                  |

@@ -71,7 +71,7 @@ func IsKittyCapable() bool {
 
 	// TODO: more rigorous check
 	V := GetEnvIdentifiers()
-	return (len(V["KITTY_WINDOW_ID"]) > 0) || (V["TERM_PROGRAM"] == "wezterm") || (V["TERM_PROGRAM"] == "ghostty")
+	return (len(V["KITTY_WINDOW_ID"]) > 0) || (V["TERM_PROGRAM"] == "wezterm") || (V["TERM_PROGRAM"] == "ghostty") || (V["TERM_PROGRAM"] == "rex")
 }
 
 // Display local PNG file
